@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Misi Gua Pangkat</title>
+<style>
+:root{color-scheme:dark;--bg:#120d1f;--card:#241a3d;--ink:#fdf6e3;--acc:#ffd23f;--ok:#22c55e;--bad:#ef4444;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS",system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+body{display:flex;flex-direction:column}
+#hud{display:flex;justify-content:space-between;padding:8px 12px 2px;font-weight:700;font-size:15px}
+#ms{padding:0 12px 6px;font-size:12px;color:var(--acc)}
+#stage{flex:1;position:relative;overflow:hidden;background:linear-gradient(#0b0716,#2a1b4a 72%)}
+#stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 30% 68%,transparent 22%,#000b 100%)}
+#world{position:absolute;left:0;top:0;height:100%;will-change:transform}
+.ceil{position:absolute;left:0;right:0;top:0;height:40px;background:linear-gradient(135deg,#150d26 25%,transparent 25%) -20px 0,linear-gradient(225deg,#150d26 25%,transparent 25%) -20px 0;background-size:40px 40px}
+.floor{position:absolute;left:0;right:0;bottom:0;height:28%;background:#3b2a1a;border-top:6px solid #6b4a28}
+.dec{position:absolute;font-size:34px;line-height:1;text-shadow:0 0 18px #ff9a1f}
+.gate{position:absolute;bottom:28%;font-size:64px;line-height:1;animation:fl 1.6s ease-in-out infinite;transition:all .7s}
+.gate.boss{font-size:100px;margin-left:-20px}
+.gate small{position:absolute;top:-8px;right:-6px;font-size:12px;background:var(--acc);color:#222;border-radius:9px;padding:1px 6px;font-weight:700}
+.gate.gone{opacity:0;transform:translateY(-90px) rotate(50deg) scale(.2);animation:none}
+@keyframes fl{50%{transform:translateY(-6px)}}
+#hero{position:absolute;left:0;bottom:28%;font-size:54px;line-height:1;width:60px}
+#hi{position:relative}
+.hat{position:absolute;top:-20px;left:12px;font-size:28px}
+.tc{position:absolute;right:-24px;bottom:4px;font-size:26px}
+#bob.walk{animation:hop .28s infinite}
+@keyframes hop{50%{transform:translateY(-9px) rotate(6deg)}}
+#ctl{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:#0007}
+#ctl button{width:92px;height:62px;font-size:30px;border:0;border-radius:18px;background:var(--acc);color:#222;touch-action:none;box-shadow:0 5px #b08900}
+#ctl button:active{transform:translateY(4px);box-shadow:0 1px #b08900}
+#ctl div{display:flex;gap:10px}#ctl #bj{background:#ff7ab8;box-shadow:0 5px #b0406f;width:100px;font-size:24px;line-height:1.1}#ctl #bj:active{box-shadow:0 1px #b0406f}#bj small{font-size:11px;font-weight:700}.it{position:absolute;font-size:28px;line-height:1;transition:all .4s;filter:drop-shadow(0 0 8px #ffd23f)}.it.got{opacity:0;transform:translateY(-50px) scale(1.6)}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:72%;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 30px #000a;transform:translateY(110%);transition:transform .35s;box-sizing:border-box;z-index:5}
+#sheet.show{transform:none}
+#sheet.shake{animation:sh .4s}
+@keyframes sh{25%{margin-left:-10px}75%{margin-left:10px}}
+.who{font-size:13px;margin-bottom:6px;color:var(--acc)}.who i{display:block;color:#cbb;font-style:normal;font-size:12px}
+.q{font-size:19px;font-weight:700;margin:8px 0 10px;line-height:1.35}
+#os button{display:block;width:100%;margin:7px 0;padding:12px;font-size:17px;border-radius:12px;border:2px solid #5b4a8a;background:#33265a;color:var(--ink)}
+#os button.ok{background:var(--ok);border-color:var(--ok);color:#06210f}
+#os button.bad{background:var(--bad);border-color:var(--bad);opacity:.7}
+#fb{font-size:14px;line-height:1.4;margin-top:6px}
+#nx,.cta{margin-top:10px;padding:12px 20px;font-size:17px;font-weight:700;border:0;border-radius:14px;background:var(--acc);color:#222}
+#ov{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.card{background:var(--card);border-radius:20px;padding:20px;max-width:420px;max-height:92%;overflow:auto;text-align:center;line-height:1.45;font-size:15px}
+.card h1{font-size:24px;margin:0 0 8px;color:var(--acc)}.card ol{text-align:left;padding-left:20px}
+.big{font-size:44px}
+</style></head><body>
+<div id="hud"><span id="hp"></span><span id="pg"></span><span id="sc"></span></div>
+<div id="ms"></div>
+<div id="stage"><div id="world">
+<div id="hero"><div id="hi"><span class="hat">⛑️</span><div id="bob">🐹</div><span class="tc">🔦</span></div></div>
+</div></div>
+<div id="ctl"><div><button id="bl">◀</button><button id="br">▶</button></div><button id="bj">⬆️<br><small>LONCAT</small></button></div>
+<div id="sheet"></div>
+<div id="ov"></div>
+<script>
+const $=s=>document.querySelector(s);
+const Q=[
+{q:"(2⁵ × 2³) : 2⁴ = ….",o:["4","16","64","2.048"],a:1,e:"2⁸ : 2⁴ = 2⁴ = 16."},
+{q:"(−2)³ × (−3)² = ….",o:["72","−36","−72","36"],a:2,e:"(−8) × 9 = −72."},
+{q:"Diameter sel darah merah 0,000007 m. Bentuk bakunya ….",o:["7 × 10⁻⁵","7 × 10⁶","0,7 × 10⁻⁵","7 × 10⁻⁶"],a:3,e:"Koma bergeser 6 tempat ke kanan, jadi 7 × 10⁻⁶."},
+{t:1,q:"2³ + 2³ = 2⁴",a:true,e:"8 + 8 = 16 = 2⁴."},
+{q:"√72 + √50 − √32 = ….",o:["7√2","3√2","15√2","√90"],a:0,e:"6√2 + 5√2 − 4√2 = 7√2."},
+{t:1,q:"3⁰ + 3⁻¹ = 1/3",a:false,e:"1 + 1/3 = 4/3, bukan 1/3."},
+{q:"Pengguna aplikasi 2.000 orang, menjadi 3 kali lipat tiap bulan. Setelah 4 bulan ada ….",o:["24.000","54.000","162.000","486.000"],a:2,e:"2.000 × 3⁴ = 2.000 × 81 = 162.000."},
+{q:"Kertas setebal 0,1 mm dilipat dua 10 kali (tebal tiap lipatan berlipat dua). Tebalnya ….",o:["102,4 mm","2 mm","10,24 mm","1.024 mm"],a:0,e:"0,1 × 2¹⁰ = 0,1 × 1.024 = 102,4 mm."},
+{q:"(2√3 + √2)(2√3 − √2) = ….",o:["14","10","12","14 − 4√6"],a:1,e:"Bentuk a² − b² = 12 − 2 = 10."},
+{q:"Taman persegi luasnya 200 m² akan dipagari seluruh sisinya. Panjang pagar ….",o:["40√2 m","20√2 m","80√2 m","50√2 m"],a:0,e:"Sisi = √200 = 10√2, keliling = 4 × 10√2 = 40√2 m."},
+{q:"Bakteri membelah jadi dua tiap 20 menit. Awalnya 1. Setelah 3 jam ada ….",o:["512","64","18","1.024"],a:0,e:"3 jam = 9 kali membelah, jadi 2⁹ = 512."},
+{t:1,q:"√9 + √16 = √25",a:false,e:"3 + 4 = 7, sedangkan √25 = 5."},
+{q:"Jika 3ˣ = 81 dan 2ʸ = 1/32, nilai x − y = ….",o:["−1","9","1","11"],a:1,e:"x = 4 dan y = −5, maka 4 − (−5) = 9."},
+{q:"Cahaya Matahari tiba di Bumi dalam 500 detik, kecepatan cahaya 3 × 10⁸ m/s. Jarak Bumi–Matahari ….",o:["1,5 × 10¹⁰ m","1,5 × 10¹² m","1,5 × 10⁶ m","1,5 × 10¹¹ m"],a:3,e:"3 × 10⁸ × 500 = 1.500 × 10⁸ = 1,5 × 10¹¹ m."},
+{q:"Angka satuan dari 7²⁰²⁶ adalah ….",o:["9","7","3","1"],a:0,e:"Satuan 7ⁿ berulang: 7, 9, 3, 1. Karena 2026 = 4 × 506 + 2, satuannya sama dengan 7², yaitu 9."}
+];
+const OB=[["🪨","Batu Raksasa","Hmph! Aku tak mau minggir sebelum kamu menjawab!"],["🦇","Kelelawar Rewel","Cit cit! Jawab tekaku, atau helmmu kupinjam!"],["🕸️","Jaring Lengket","Hanya jawaban benar yang bisa memotongku~"],["🐍","Ular Sendawa","Sssst... hitung dulu, baru lewat. Hik!"],["👻","Hantu Iseng","Buuu! Aku cuma mau tanya satu hal kok."],["🔥","Api Ngambek","Aku padam kalau kamu menjawab dengan benar!"]];
+const BOSS=["🐉","Naga Eksponen","GROAAR! Siapa berani merebut Kristal Eksponen?!"];
+const stage=$("#stage"),world=$("#world"),hero=$("#hero"),hi=$("#hi"),bob=$("#bob"),sheet=$("#sheet"),ov=$("#ov");
+let x,y=0,vy=0,gi,coins,falls,score,streak,busy,play=false,face=1,keys={l:0,r:0,j:0},G=[],IT=[],END,W,last=0;
+function build(){
+ world.querySelectorAll(".dyn").forEach(e=>e.remove());
+ G=Q.map((q,i)=>{const o=i==Q.length-1?BOSS:OB[i%OB.length];return{q,x:520+i*400,e:o[0],n:o[1],l:o[2]}});
+ END=G[G.length-1].x+380;W=END+320;world.style.width=W+"px";
+ let h='<div class="ceil dyn"></div><div class="floor dyn"></div>';
+ for(let p=300;p<W;p+=650)h+=`<div class="dec dyn" style="left:${p}px;bottom:calc(28% + 110px)">🔥</div>`;
+ for(let p=200;p<W;p+=330)h+=`<div class="dec dyn" style="left:${p}px;bottom:calc(28% - 4px);font-size:26px">${["🍄","💎","🌿","🦴"][(p/330|0)%4]}</div>`;
+ G.forEach((g,i)=>h+=`<div class="gate dyn${i==G.length-1?" boss":""}" id="g${i}" style="left:${g.x-20}px">${g.e}<small>${i+1}</small></div>`);
+ h+=`<div class="dec dyn" style="left:${END}px;bottom:28%;font-size:58px;text-shadow:0 0 30px #5ef">💎</div><div class="dec dyn" style="left:30px;bottom:28%;font-size:40px;text-shadow:none">🏘️</div>`;
+ IT=[];
+ for(let i=0;i<=G.length;i++){const a=i?G[i-1].x+90:220,b=i<G.length?G[i].x-120:END-60;if(b-a<120)continue;const m=(a+b)/2;
+  [[a+20,0,"🪙"],[m-60,70,"🪙"],[m,125,"💎"],[m+60,70,"🪙"],[b-20,0,"🪙"]].forEach(([px,hh,e])=>IT.push({x:px,h:hh,e,id:IT.length,got:0}))}
+ IT.forEach(t=>h+=`<div class="it dyn" id="i${t.id}" style="left:${t.x-14}px;bottom:calc(28% + ${t.h}px)">${t.e}</div>`);
+ world.insertAdjacentHTML("afterbegin",h);
+}
+function hud(){
+ $("#hp").textContent="🪙 "+coins;
+ $("#pg").textContent=`🚪 ${gi}/${G.length}`;$("#sc").textContent="⭐ "+score;
+ $("#ms").textContent=gi<G.length?`🎯 Misi: tembus ${G.length} penghalang, kalahkan Naga, rebut 💎 untuk menyalakan lampu desa!`:"💎 Naga kabur! Cepat ambil Kristal di ujung gua ➡️";
+}
+function show(h){ov.innerHTML=`<div class="card">${h}</div>`;ov.style.display="flex"}
+function intro(){show(`<div class="big">🐹⛑️🔦</div><h1>Misi Gua Pangkat</h1>
+<p>Desa Pangkatan gelap gulita! 😱 <b>Naga Eksponen</b> mencuri <b>💎 Kristal Eksponen</b>, sumber cahaya seluruh desa, dan menyembunyikannya di dasar gua.</p>
+<p><b>Tugas Bimo si Hamster:</b></p><ol><li>Jalan menyusuri gua (tahan ◀ ▶ atau panah keyboard). Tekan ⬆️ (atau spasi) untuk loncat dan tangkap 🪙 dan 💎, yang melayang tinggi bernilai besar!</li><li>Jawab soal di tiap penghalang. Jawaban salah = Bimo <b>terlempar 2 soal ke belakang</b> dan harus menjawab ulang!</li><li>Kalahkan Naga di ujung gua, ambil 💎, dan lampu desa menyala lagi!</li></ol>
+<button class="cta" onclick="start()">Mulai Misi 🔦</button>`)}
+function start(){x=100;y=0;vy=0;gi=0;coins=0;falls=0;score=0;streak=0;busy=false;face=1;build();hud();ov.style.display="none";sheet.classList.remove("show");play=true}
+function shuffle(a){return a.map(v=>[Math.random(),v]).sort((p,q)=>p[0]-q[0]).map(p=>p[1])}
+function ask(){
+ busy=true;const g=G[gi],q=g.q;
+ const o=q.t?[["Benar",q.a],["Salah",!q.a]]:shuffle(q.o.map((t,i)=>[t,i==q.a]));
+ sheet.innerHTML=`<div class="who">${g.e} <b>${g.n}</b> · Soal ${gi+1}/${G.length}<i>“${g.l}”</i></div><div class="q">${q.t?"Benar atau salah?<br>":""}${q.q}</div><div id="os"></div><div id="fb"></div>`;
+ o.forEach(([t,ok])=>{const b=document.createElement("button");b.textContent=t;b.dataset.ok=ok;b.onclick=()=>pick(b,ok,q);$("#os").appendChild(b)});
+ sheet.classList.add("show");
+}
+function lock(){sheet.querySelectorAll("#os button").forEach(e=>e.disabled=true)}
+function done(m){$("#fb").innerHTML=m+'<br><button id="nx">Lanjut 🏃</button>';$("#nx").onclick=next}
+function pick(b,ok,q){
+ if(ok){streak++;score+=10+Math.min(streak,5)*2;lock();b.classList.add("ok");done(`✅ <b>Benar!</b> ${q.e}`)}
+ else{
+  streak=0;lock();b.classList.add("bad");sheet.querySelector('[data-ok="true"]').classList.add("ok");sheet.classList.add("shake");setTimeout(()=>sheet.classList.remove("shake"),400);
+  const n=Math.max(0,gi-2);$("#fb").innerHTML=`💥 <b>Aduh, salah!</b> ${q.e}<br>Bimo terlempar kembali ke soal ${n+1}!<br><button id="nx">Bangkit 🤕</button>`;$("#nx").onclick=()=>throwBack(n);
+ }
+ hud();
+}
+function next(){sheet.classList.remove("show");$("#g"+gi).classList.add("gone");gi++;busy=false;hud()}
+function throwBack(n){falls++;sheet.classList.remove("show");
+ hero.style.transition=world.style.transition="transform .7s";
+ for(let i=n;i<gi;i++)$("#g"+i).classList.remove("gone");
+ gi=n;x=n?G[n-1].x+90:100;y=0;vy=0;hud();
+ setTimeout(()=>{hero.style.transition=world.style.transition="";busy=false},750)}
+function win(){play=false;const s=falls==0?3:falls<=2?2:1;
+ show(`<div class="big">🎉💎🎉</div><h1>Misi Berhasil!</h1><p>Bimo merebut Kristal Eksponen dan membawanya pulang. <b>Lampu Desa Pangkatan menyala lagi!</b> 🏘️✨ Semua warga bersorak.</p><div class="big">${"⭐".repeat(s)}${"☆".repeat(3-s)}</div><p>Skor: ⭐ ${score} · 🪙 ${coins} · Terlempar: ${falls}×</p><button class="cta" onclick="start()">Main Lagi 🔁</button>`)}
+function loop(t){
+ const dt=Math.min(40,t-last)/1000;last=t;let d=0;
+ if(play){
+  if(!busy){
+   d=keys.r-keys.l;if(d){x+=d*240*dt;face=d}if(keys.j&&y==0)vy=640;
+   const lim=gi<G.length?G[gi].x-70:END;x=Math.max(30,Math.min(x,lim));
+   if(gi<G.length&&x>=lim-2)ask();else if(gi>=G.length&&x>=END-2)win();
+  }
+  if(y>0||vy>0){vy-=1750*dt;y=Math.max(0,y+vy*dt);if(y==0)vy=0}
+  IT.forEach(t=>{if(!t.got&&Math.abs(t.x-x)<36&&t.h<y+54&&t.h+28>y){t.got=1;$("#i"+t.id).classList.add("got");const g=t.e=="💎";coins+=g?3:1;score+=g?20:5;hud()}});
+  const sw=stage.clientWidth,cam=Math.max(0,Math.min(x-sw*.3,W-sw));
+  world.style.transform=`translateX(${-cam}px)`;hero.style.transform=`translate(${x-30}px,${-y}px)`;
+  hi.style.transform=`scaleX(${face})`;bob.classList.toggle("walk",!!d&&!busy);
+ }
+ requestAnimationFrame(loop);
+}
+[["#bl","l"],["#br","r"],["#bj","j"]].forEach(([s,k])=>{const e=$(s);e.onpointerdown=v=>{v.preventDefault();keys[k]=1};["pointerup","pointerleave","pointercancel"].forEach(n=>e.addEventListener(n,()=>keys[k]=0))});
+addEventListener("keydown",e=>{if(e.key=="ArrowRight"||e.key=="d")keys.r=1;if(e.key=="ArrowLeft"||e.key=="a")keys.l=1});
+addEventListener("keyup",e=>{if(e.key=="ArrowRight"||e.key=="d")keys.r=0;if(e.key=="ArrowLeft"||e.key=="a")keys.l=0});
+addEventListener("contextmenu",e=>e.preventDefault());addEventListener("keydown",e=>{if([" ","ArrowUp","w"].includes(e.key)){keys.j=1;e.preventDefault()}});addEventListener("keyup",e=>{if([" ","ArrowUp","w"].includes(e.key))keys.j=0});
+x=100;gi=0;coins=0;falls=0;score=0;build();hud();intro();requestAnimationFrame(loop);
+</script></body></html>
